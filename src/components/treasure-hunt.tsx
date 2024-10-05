@@ -67,8 +67,8 @@ export function TreasureHunt() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { ref } = useZxing({
-    onResult(result) {
-      setCurrentAnswer(result.getText());
+    onDecodeResult(result) {
+      setResult(result.getText());
     },
   });
 
