@@ -41,7 +41,7 @@ export function TreasureHunt() {
     const savedStep = Cookies.get('currentStep');
     return savedStep ? parseInt(savedStep, 10) : 0;
   });
-
+  const [result, setResult] = useState("");
   const [playerInfo, setPlayerInfo] = useState<{ firstName: string; lastName: string; email: string; experience: string }>(() => {
     const savedInfo = Cookies.get('playerInfo');
     return savedInfo ? JSON.parse(savedInfo) : { firstName: "", lastName: "", email: "", experience: "" };
