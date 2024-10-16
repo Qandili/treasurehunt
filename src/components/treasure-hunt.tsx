@@ -13,7 +13,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import NET from 'vanta/dist/vanta.net.min';
 import * as THREE from 'three';
 import logo from '@/assets/logo.png'; // Tell webpack this JS file uses this image
-import axios from 'axios';
+//import axios from 'axios';
 
 
 interface Task {
