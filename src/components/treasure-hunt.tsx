@@ -48,7 +48,6 @@ const initialTasks: Task[] = [
 ];
 
 const API_URL = "http://localhost:8087"; // Back-End-Url
-//const [endGameDate, setEndGameDate] = useState<Date | null>(null);
 
 export function TreasureHunt() {
   // Initialize state from cookies or use default values
@@ -167,7 +166,48 @@ export function TreasureHunt() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
+
+    // Step 3 validation for Salesforce character
+    if (currentStep === 3) {
+      const validAnswers = ["hootie", "earnie", "meta", "saasy", "genie", "astro", "brandy", "zig", "koa", "flo", "codey", "einstein", "ruth", "appy", "blaze", "max", "genie", "cloudy"];
+      if (!validAnswers.includes(currentAnswer.toLowerCase())) {
+        toast.error("Invalid answer. Please try again.");
+        return;
+      }
+    }
+
+    if (currentStep === 6) { // Step 6
+      const endGameDate = new Date().toISOString(); // Get the current date and time in ISO format
+      try {
+        const response = await fetch(`${API_URL}/standcode/mark-used/${currentAnswer}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(endGameDate), // Send the end game date as JSON
+        });
+
+        if (!response.ok) {
+          //throw new Error('Failed to update end game date');
+          if (response.status === 409) {
+            toast.error("This code is already used! Ask for a new code.");
+            return;
+            //throw new Error("This code is already used!");
+          }
+          // Attempt to parse the error response as JSON
+          //const errorData = await response.json();
+          //throw new Error(errorData.message || "Failed !!!");
+        }
+
+        const data = await response.json();
+        console.log(data); // Handle the response as needed
+      } catch (error) {
+        console.error('Error:', error);
+        // Optionally show an error message to the user
+      }
+    }
+
+
     if (currentStep === 7) {
       // Validate the hobby for the selected person
       if (currentAnswer.toLowerCase() === personHobbies[selectedPerson]) {
@@ -180,24 +220,24 @@ export function TreasureHunt() {
       }
     }
 
-     // Step 3 validation for Salesforce character
-     if (currentStep === 6) { 
-      const validAnswers = ["apex"];
+    // Step 8 validation 
+    if (currentStep === 8) {
+      const validAnswers = ["2021"];
       if (!validAnswers.includes(currentAnswer.toLowerCase())) {
         toast.error("Invalid answer. Please try again.");
         return;
       }
     }
 
-    // Step 3 validation for Salesforce character
-    if (currentStep === 3) { 
-      const validAnswers = ["hootie","earnie","meta","saasy","genie","astro","brandy","zig","koa","flo","codey", "einstein", "ruth", "appy", "blaze", "max", "genie", "cloudy"];
+    // Step 9 validation 
+    if (currentStep === 9) {
+      const validAnswers = ["2019"];
       if (!validAnswers.includes(currentAnswer.toLowerCase())) {
         toast.error("Invalid answer. Please try again.");
         return;
       }
     }
-  
+
     if (currentStep === 0) {
       try {
         await createUser(playerInfo);
@@ -224,45 +264,42 @@ export function TreasureHunt() {
       setCurrentAnswer("");
     }
   };
-  
-
-
 
 
   const handleNext = async () => {
-    if (currentStep === 9) { // Step 9 corresponds to index 8
-        const userId = localStorage.getItem('userId'); // Replace with the actual key used to store user ID
-        const endGameDate = new Date().toISOString(); // Get the current date and time in ISO format
+    if (currentStep === 9) { // Step 9 
+      const userId = localStorage.getItem('userId'); // Replace with the actual key used to store user ID
+      const endGameDate = new Date().toISOString(); // Get the current date and time in ISO format
 
-        try {
-            const response = await fetch(`${API_URL}/user/${userId}/endGame`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(endGameDate), // Send the end game date as JSON
-            });
+      try {
+        const response = await fetch(`${API_URL}/user/${userId}/endGame`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(endGameDate), // Send the end game date as JSON
+        });
 
-            if (!response.ok) {
-                throw new Error('Failed to update end game date');
-            }
-
-            const data = await response.json();
-            console.log(data); // Handle the response as needed
-        } catch (error) {
-            console.error('Error:', error);
-            // Optionally show an error message to the user
+        if (!response.ok) {
+          throw new Error('Failed to update end game date');
         }
+
+        const data = await response.json();
+        console.log(data); // Handle the response as needed
+      } catch (error) {
+        console.error('Error:', error);
+        // Optionally show an error message to the user
+      }
     }
-    
+
     if (currentStep < tasks.length) {
-        setCurrentStep(prev => prev + 1);
+      setCurrentStep(prev => prev + 1);
     } else {
-        setGameCompleted(true);
-        setCurrentStep(prev => prev + 1); // Move to game completed step
-        toast.success("Congratulations! You've completed the Treasure Hunt.");
+      setGameCompleted(true);
+      setCurrentStep(prev => prev + 1); // Move to game completed step
+      toast.success("Congratulations! You've completed the Treasure Hunt.");
     }
-};
+  };
 
 
 
@@ -460,34 +497,6 @@ export function TreasureHunt() {
     </Card>
   );
 
-  // const createUser = async (userInfo: { firstName: string; lastName: string; email: string; experience: string }) => {
-  //   try {
-  //     const response = await fetch(`${API_URL}/user`, {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify(userInfo),
-  //     });
-
-  //     if (!response.ok) {
-  //       if (response.status === 409) {
-  //         throw new Error("User with this email already exists");
-  //       }
-  //       // Attempt to parse the error response as JSON
-  //       const errorData = await response.json();
-  //       throw new Error(errorData.message || "Failed to create user");
-  //     }
-
-  //     const data = await response.json(); // Ensure successful response parsing
-  //     toast.success("User created successfully");
-  //     return data;
-  //   } catch (error) {
-  //     console.error("Caught error:", error);
-  //     throw new Error(error.message || "An unexpected error occurred");
-  //   }
-  // };
-
   const createUser = async (userInfo: { firstName: string; lastName: string; email: string; experience: string }) => {
     try {
       const response = await fetch(`${API_URL}/user`, {
@@ -516,19 +525,6 @@ export function TreasureHunt() {
       throw new Error(error.message || "An unexpected error occurred");
     }
   };
-
-//   const updateEndGame = async (userId, endGameDate) => {
-//     try {
-//         const response = await axios.patch(`/api/users/${userId}/endGame`, endGameDate);
-//         // Handle the response here (e.g., updating state or displaying a message)
-//         console.log('End game updated successfully:', response.data);
-//     } catch (error) {
-//         // Handle error appropriately
-//         console.error('Error updating end game:', error);
-//     }
-// };
-
-  
 
 
   return (
