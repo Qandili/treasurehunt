@@ -25,6 +25,15 @@ interface Task {
   type: "text" | "image" | "social" | "scan";
 }
 
+// Mapping for persons and their hobbies
+const personHobbies = {
+  "Nizar krimis": "music",
+  "Bader Toumi": "design",
+  "Mohamed Elqandili": "surf",
+  "Marouan Zibout": "box"
+};
+
+const personKeys = Object.keys(personHobbies);
 
 const initialTasks: Task[] = [
   { id: 3, title: "Take a selfie", description: "Take a selfie with X person and the X person verifies the selfie by entering a code", score: 15, completed: false, type: "image" },
@@ -33,7 +42,7 @@ const initialTasks: Task[] = [
   { id: 1, title: "Follow LinkedIn", description: "Follow LinkedIn accounts", score: 10, completed: false, type: "social" },
   { id: 2, title: "Follow Instagram", description: "Follow Instagram accounts", score: 10, completed: false, type: "social" },
   { id: 6, title: "Answer question", description: "Answer a question in the stand (the one in the stand validates with a code)", score: 15, completed: false, type: "text" },
-  { id: 7, title: "Hobby", description: "What is the hobby of X(random of 4 persons) person?", score: 10, completed: false, type: "text" },
+  { id: 7, title: "Hobby", description: "What is the hobby of XXX (random of 4 persons) person?", score: 10, completed: false, type: "text" },
   { id: 8, title: "Oreivaton creation", description: "When was oreivaton created (ask someone of the team)", score: 10, completed: false, type: "text" },
   { id: 9, title: "NBS creation", description: "When was NBS created (ask someone of the team)", score: 5, completed: false, type: "text" },
 ];
@@ -71,6 +80,12 @@ export function TreasureHunt() {
   });
 
   const [currentAnswer, setCurrentAnswer] = useState<string>("");
+
+  const [selectedPerson, setSelectedPerson] = useState<string>(() => {
+    // Generate a random person initially if step 7 is the first step
+    return personKeys[Math.floor(Math.random() * personKeys.length)];
+  });
+
   const [selfieImage, setSelfieImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -83,6 +98,14 @@ export function TreasureHunt() {
   // Vanta.js setup
   const vantaRef = useRef<HTMLDivElement>(null);
   const [vantaEffect, setVantaEffect] = useState<any>(null);
+
+  useEffect(() => {
+    if (currentStep === 7) {
+      const randomPerson = personKeys[Math.floor(Math.random() * personKeys.length)];
+      setSelectedPerson(randomPerson);
+    }
+  }, [currentStep]);
+
 
   useEffect(() => {
     if (!vantaEffect && vantaRef.current) {
@@ -144,6 +167,37 @@ export function TreasureHunt() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+  
+    if (currentStep === 7) {
+      // Validate the hobby for the selected person
+      if (currentAnswer.toLowerCase() === personHobbies[selectedPerson]) {
+        toast.success("Correct! Moving to the next step.");
+        //setCurrentStep((prev) => prev + 1);
+        //setCurrentAnswer("");
+      } else {
+        toast.error("Incorrect hobby. Please try again.");
+        return;
+      }
+    }
+
+     // Step 3 validation for Salesforce character
+     if (currentStep === 6) { 
+      const validAnswers = ["apex"];
+      if (!validAnswers.includes(currentAnswer.toLowerCase())) {
+        toast.error("Invalid answer. Please try again.");
+        return;
+      }
+    }
+
+    // Step 3 validation for Salesforce character
+    if (currentStep === 3) { 
+      const validAnswers = ["hootie","earnie","meta","saasy","genie","astro","brandy","zig","koa","flo","codey", "einstein", "ruth", "appy", "blaze", "max", "genie", "cloudy"];
+      if (!validAnswers.includes(currentAnswer.toLowerCase())) {
+        toast.error("Invalid answer. Please try again.");
+        return;
+      }
+    }
+  
     if (currentStep === 0) {
       try {
         await createUser(playerInfo);
@@ -170,6 +224,7 @@ export function TreasureHunt() {
       setCurrentAnswer("");
     }
   };
+  
 
 
 
@@ -316,7 +371,7 @@ export function TreasureHunt() {
     <Card className="w-full max-w-md bg-gray-800/80 backdrop-blur-sm">
       <CardHeader>
         <CardTitle className="text-teal-400">{task.title}</CardTitle>
-        <CardDescription className="text-teal-300">{task.description}</CardDescription>
+        <CardDescription className="text-teal-300">{task.description.replace("XXX", selectedPerson)}</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
