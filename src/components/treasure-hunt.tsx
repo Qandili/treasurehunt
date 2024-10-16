@@ -13,15 +13,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import NET from 'vanta/dist/vanta.net.min';
 import * as THREE from 'three';
 import logo from '@/assets/logo.png'; // Tell webpack this JS file uses this image
+import axios from 'axios';
 
-// interface Task {
-//   id: number;
-//   title: string;
-//   description: string;
-//   score: number;
-//   completed: boolean;
-//   type: "text" | "image" | "social" | "scan";
-// }
 
 interface Task {
   id: number;
@@ -46,6 +39,7 @@ const initialTasks: Task[] = [
 ];
 
 const API_URL = "http://localhost:8087"; // Back-End-Url
+//const [endGameDate, setEndGameDate] = useState<Date | null>(null);
 
 export function TreasureHunt() {
   // Initialize state from cookies or use default values
@@ -64,18 +58,13 @@ export function TreasureHunt() {
     return savedTasks ? JSON.parse(savedTasks) : initialTasks;
   });
 
-  // const [totalScore, setTotalScore] = useState<number>(() => {
-  //   const savedScore = Cookies.get('totalScore');
-  //   return savedScore ? parseInt(savedScore, 10) : 0;
-  // });
-
   const [totalTime, setTotalTime] = useState<number>(() => {
     const savedTime = Cookies.get('totalTime');
     return savedTime ? parseInt(savedTime, 10) : 0;
   });
   const [startTime, setStartTime] = useState<number | null>(null);
 
-  
+
   const [gameCompleted, setGameCompleted] = useState<boolean>(() => {
     const savedGameStatus = Cookies.get('gameCompleted');
     return savedGameStatus === 'true';
@@ -138,14 +127,10 @@ export function TreasureHunt() {
     Cookies.set('tasks', JSON.stringify(tasks), { expires: 7 });
   }, [tasks]);
 
-  // useEffect(() => {
-  //   Cookies.set('totalScore', totalScore.toString(), { expires: 7 });
-  // }, [totalScore]);
-  
   useEffect(() => {
     Cookies.set('totalTime', totalTime.toString(), { expires: 7 });
   }, [totalTime]);
-  
+
 
   useEffect(() => {
     Cookies.set('gameCompleted', gameCompleted.toString(), { expires: 7 });
@@ -155,56 +140,6 @@ export function TreasureHunt() {
     const { name, value } = e.target;
     setPlayerInfo(prev => ({ ...prev, [name]: value }));
   };
-
-  // const handleSubmit = (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   if (currentStep === 0) {
-  //     setCurrentStep(1);
-  //     toast.success("Player information saved! Starting the game.");
-  //   } else {
-  //     const currentTask = tasks[currentStep - 1];
-  //     // Optionally, add validation for answers here
-  //     const updatedTasks = tasks.map((task, index) =>
-  //       index === currentStep - 1 ? { ...task, completed: true } : task
-  //     );
-  //     setTasks(updatedTasks);
-  //     setTotalScore(prev => prev + currentTask.score);
-  //     toast.success(`Task "${currentTask.title}" completed! You earned ${currentTask.score} points.`);
-  //     setCurrentAnswer(""); // Reset current answer after submission
-  //   }
-  // };
-
-
-  // const handleSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   if (currentStep === 0) {
-  //     try {
-  //       await createUser(playerInfo); // Call the function to create the user
-  //       // Only set currentStep if user creation is successful
-  //       setCurrentStep(1);
-  //       toast.success("Player information saved! Starting the game.");
-  //     } catch (error) {
-  //       // Keep the user on the same page and show the error message
-  //       if (error.message === "User with this email already exists") {
-  //         toast.error("Please try again with a different email.");
-  //       } else {
-  //         toast.error("An error occurred. Please try again.");
-  //       }
-  //       // Do not change currentStep here; keep the user on the same page
-  //     }
-  //   } else {
-  //     const currentTask = tasks[currentStep - 1];
-  //     // Optionally, add validation for answers here
-  //     const updatedTasks = tasks.map((task, index) =>
-  //       index === currentStep - 1 ? { ...task, completed: true } : task
-  //     );
-  //     setTasks(updatedTasks);
-  //     setTotalScore((prev) => prev + currentTask.score);
-  //     toast.success(`Task "${currentTask.title}" completed! You earned ${currentTask.score} points.`);
-  //     setCurrentAnswer(""); // Reset current answer after submission
-  //   }
-  // };
-  
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -235,17 +170,46 @@ export function TreasureHunt() {
       setCurrentAnswer("");
     }
   };
-  
 
-  const handleNext = () => {
-    if (currentStep < tasks.length) {
-      setCurrentStep(prev => prev + 1);
-    } else {
-      setGameCompleted(true);
-      setCurrentStep(prev => prev + 1); // Move to game completed step
-      toast.success("Congratulations! You've completed the Treasure Hunt.");
+
+
+
+  const handleNext = async () => {
+    if (currentStep === 9) { // Step 9 corresponds to index 8
+        const userId = localStorage.getItem('userId'); // Replace with the actual key used to store user ID
+        const endGameDate = new Date().toISOString(); // Get the current date and time in ISO format
+
+        try {
+            const response = await fetch(`${API_URL}/user/${userId}/endGame`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(endGameDate), // Send the end game date as JSON
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to update end game date');
+            }
+
+            const data = await response.json();
+            console.log(data); // Handle the response as needed
+        } catch (error) {
+            console.error('Error:', error);
+            // Optionally show an error message to the user
+        }
     }
-  };
+    
+    if (currentStep < tasks.length) {
+        setCurrentStep(prev => prev + 1);
+    } else {
+        setGameCompleted(true);
+        setCurrentStep(prev => prev + 1); // Move to game completed step
+        toast.success("Congratulations! You've completed the Treasure Hunt.");
+    }
+};
+
+
 
   const handlePrevious = () => {
     setCurrentStep(prev => Math.max(1, prev - 1));
@@ -262,22 +226,6 @@ export function TreasureHunt() {
     }
   };
 
-  // const renderHeader = () => (
-  //   <div className="w-full max-w-4xl mb-6 p-4 bg-gray-800/80 backdrop-blur-sm rounded-lg shadow-md flex justify-between items-center">
-  //     <div>
-  //       <p className="text-lg font-semibold text-teal-400">Welcome, {playerInfo.firstName || "Player"}!</p>
-  //       {currentStep > 0 && (
-  //         <p className="text-sm text-teal-300">
-  //           Step {currentStep > tasks.length ? tasks.length : currentStep} of {tasks.length}
-  //         </p>
-  //       )}
-  //     </div>
-  //     <div>
-  //       <p className="text-lg font-semibold text-teal-400">Score: {totalScore}</p>
-  //     </div>
-  //   </div>
-  // );
-
   const renderHeader = () => (
     <div className="w-full max-w-4xl mb-6 p-4 bg-gray-800/80 backdrop-blur-sm rounded-lg shadow-md flex justify-between items-center">
       <div>
@@ -293,7 +241,7 @@ export function TreasureHunt() {
       </div>
     </div>
   );
-  
+
 
   const renderForm = () => (
     <div className="flex items-center justify-center p-4 relative z-10">
@@ -373,11 +321,11 @@ export function TreasureHunt() {
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           {task.type === "text" && (
-            <Input 
-              placeholder="Enter your answer" 
+            <Input
+              placeholder="Enter your answer"
               value={currentAnswer}
               onChange={(e) => setCurrentAnswer(e.target.value)}
-              className="border-teal-500 focus:ring-teal-500 bg-gray-700 text-white" 
+              className="border-teal-500 focus:ring-teal-500 bg-gray-700 text-white"
               required
             />
           )}
@@ -422,64 +370,6 @@ export function TreasureHunt() {
     </Card>
   );
 
-  // const renderGameComplete = () => (
-  //   <Card className="w-full max-w-md bg-gray-800/80 backdrop-blur-sm">
-  //     <CardHeader>
-  //       <CardTitle className="text-teal-400">Game Complete!</CardTitle>
-  //       <CardDescription className="text-teal-300">Congratulations on finishing the Treasure Hunt!</CardDescription>
-  //     </CardHeader>
-  //     <CardContent>
-  //       <p className="text-teal-300">Your total score: {totalScore}</p>
-  //       <p className="text-teal-300">Thank you for playing, {playerInfo.firstName}!</p>
-  //       <Button
-  //         onClick={() => {
-  //           // Clear cookies and reset game
-  //           Cookies.remove('currentStep');
-  //           Cookies.remove('playerInfo');
-  //           Cookies.remove('tasks');
-  //           Cookies.remove('totalScore');
-  //           Cookies.remove('gameCompleted');
-  //           setCurrentStep(0);
-  //           setPlayerInfo({ firstName: "", lastName: "", email: "", experience: "" });
-  //           setTasks(initialTasks);
-  //           setTotalScore(0);
-  //           setGameCompleted(false);
-  //           setCurrentAnswer("");
-  //           setSelfieImage(null);
-  //           toast.info("Game has been restarted.");
-  //         }}
-  //         className="mt-4 w-full bg-teal-500 hover:bg-teal-600 text-white"
-  //       >
-  //         Restart Game
-  //       </Button>
-  //     </CardContent>
-  //   </Card>
-  // );
-
-  // const createUser = async (userInfo: { firstName: string; lastName: string; email: string; experience: string }) => {
-  //   try {
-  //     const response = await fetch(`${API_URL}/user`, {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify(userInfo),
-  //     });
-  
-  //     if (!response.ok) {
-  //       throw new Error("Failed to create user");
-  //     }
-  
-  //     const data = await response.json();
-  //     toast.success("User created successfully");
-  //     return data;
-  //   } catch (error) {
-  //     console.error(error);
-  //     toast.error("Error creating user");
-  //   }
-  // };
-  
-
   const renderGameComplete = () => (
     <Card className="w-full max-w-md bg-gray-800/80 backdrop-blur-sm">
       <CardHeader>
@@ -491,11 +381,12 @@ export function TreasureHunt() {
         <p className="text-teal-300">Thank you for playing, {playerInfo.firstName}!</p>
         <Button
           onClick={() => {
-            Cookies.remove('currentStep');
-            Cookies.remove('playerInfo');
-            Cookies.remove('tasks');
-            Cookies.remove('totalTime');
-            Cookies.remove('gameCompleted');
+            Cookies.remove("currentStep");
+            Cookies.remove("playerInfo");
+            Cookies.remove("tasks");
+            Cookies.remove("totalTime");
+            Cookies.remove("gameCompleted");
+            localStorage.removeItem("userId"); // Clear user ID from local storage
             setCurrentStep(0);
             setPlayerInfo({ firstName: "", lastName: "", email: "", experience: "" });
             setTasks(initialTasks);
@@ -509,10 +400,38 @@ export function TreasureHunt() {
         >
           Restart Game
         </Button>
+
       </CardContent>
     </Card>
   );
-  
+
+  // const createUser = async (userInfo: { firstName: string; lastName: string; email: string; experience: string }) => {
+  //   try {
+  //     const response = await fetch(`${API_URL}/user`, {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify(userInfo),
+  //     });
+
+  //     if (!response.ok) {
+  //       if (response.status === 409) {
+  //         throw new Error("User with this email already exists");
+  //       }
+  //       // Attempt to parse the error response as JSON
+  //       const errorData = await response.json();
+  //       throw new Error(errorData.message || "Failed to create user");
+  //     }
+
+  //     const data = await response.json(); // Ensure successful response parsing
+  //     toast.success("User created successfully");
+  //     return data;
+  //   } catch (error) {
+  //     console.error("Caught error:", error);
+  //     throw new Error(error.message || "An unexpected error occurred");
+  //   }
+  // };
 
   const createUser = async (userInfo: { firstName: string; lastName: string; email: string; experience: string }) => {
     try {
@@ -523,7 +442,7 @@ export function TreasureHunt() {
         },
         body: JSON.stringify(userInfo),
       });
-  
+
       if (!response.ok) {
         if (response.status === 409) {
           throw new Error("User with this email already exists");
@@ -532,8 +451,9 @@ export function TreasureHunt() {
         const errorData = await response.json();
         throw new Error(errorData.message || "Failed to create user");
       }
-  
+
       const data = await response.json(); // Ensure successful response parsing
+      localStorage.setItem("userId", data.id); // Store user ID in local storage
       toast.success("User created successfully");
       return data;
     } catch (error) {
@@ -541,7 +461,20 @@ export function TreasureHunt() {
       throw new Error(error.message || "An unexpected error occurred");
     }
   };
+
+//   const updateEndGame = async (userId, endGameDate) => {
+//     try {
+//         const response = await axios.patch(`/api/users/${userId}/endGame`, endGameDate);
+//         // Handle the response here (e.g., updating state or displaying a message)
+//         console.log('End game updated successfully:', response.data);
+//     } catch (error) {
+//         // Handle error appropriately
+//         console.error('Error updating end game:', error);
+//     }
+// };
+
   
+
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
@@ -571,16 +504,16 @@ export function TreasureHunt() {
       </div>
 
       {/* Toast Notifications */}
-      <ToastContainer 
-        position="top-right" 
-        autoClose={3000} 
-        hideProgressBar={false} 
-        newestOnTop={false} 
-        closeOnClick 
-        rtl={false} 
-        pauseOnFocusLoss 
-        draggable 
-        pauseOnHover 
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
         theme="colored"
       />
     </div>
