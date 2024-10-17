@@ -86,6 +86,9 @@ export function TreasureHunt() {
   });
 
   const [selfieImage, setSelfieImage] = useState<string | null>(null);
+  //new var
+  const [selfieImageFile, setSelfieImageFile] = useState<File | null>(null);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { ref } = useZxing({
@@ -166,6 +169,48 @@ export function TreasureHunt() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Step 1 validation for selfie
+    if (currentStep === 1) {
+      if (!selfieImage) {
+        toast.error("Please select a selfie image.");
+        return;
+      }
+    
+      if (currentAnswer.toLowerCase() !== "apex") {
+        toast.error("Incorrect code. Please try again.");
+        return;
+      }
+    
+      // Create FormData and append the selfie image and user ID
+      const formData = new FormData();
+      //formData.append("multipartFile", selfieImage); // Assuming selfieImage is a File object
+      formData.append("multipartFile", selfieImageFile);
+      const userId = localStorage.getItem('userId');
+      if (!userId) {
+        toast.error("User ID is missing.");
+        return;
+      }
+      console.log(selfieImage);
+      //console.log(selfieImage.type);
+
+      formData.append("userId", userId); // Get the user ID from local storage
+    
+      try {
+        const response = await fetch(`${API_URL}/cloudinary/upload`, {
+          method: "POST",
+          body: formData,
+        });
+        if (!response.ok) {
+          throw new Error("Failed to upload selfie.");
+        }
+    
+        toast.success("Selfie uploaded successfully!");
+      } catch (error) {
+        console.error("Error uploading selfie:", error);
+        toast.error("Failed to upload the selfie. Please try again.");
+        return;
+      }
+    }
 
     // Step 3 validation for Salesforce character
     if (currentStep === 3) {
@@ -307,16 +352,30 @@ export function TreasureHunt() {
     setCurrentStep(prev => Math.max(1, prev - 1));
   };
 
+  // const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = event.target.files?.[0];
+  //   if (file) {
+  //     const reader = new FileReader();
+  //     reader.onloadend = () => {
+  //       setSelfieImage(reader.result as string);
+  //     };
+  //     reader.readAsDataURL(file);
+  //   }
+  // };
+
+
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      setSelfieImageFile(file); // Save the File object
       const reader = new FileReader();
       reader.onloadend = () => {
-        setSelfieImage(reader.result as string);
+        setSelfieImage(reader.result as string); // For preview purposes only
       };
       reader.readAsDataURL(file);
     }
   };
+  
 
   const renderHeader = () => (
     <div className="w-full max-w-4xl mb-6 p-4 bg-gray-800/80 backdrop-blur-sm rounded-lg shadow-md flex justify-between items-center">
@@ -421,7 +480,7 @@ export function TreasureHunt() {
               required
             />
           )}
-          {task.type === "image" && (
+          {currentStep === 1 && task.type === "image" && (
             <div className="space-y-2">
               <Button onClick={() => fileInputRef.current?.click()} type="button" className="w-full bg-teal-500 hover:bg-teal-600 text-white">
                 <Camera className="mr-2 h-4 w-4" /> Take Selfie
@@ -434,11 +493,25 @@ export function TreasureHunt() {
                 ref={fileInputRef}
                 className="hidden"
               />
+
               {selfieImage && (
                 <div className="mt-2">
                   <img src={selfieImage} alt="Selfie" className="max-w-full h-auto rounded-lg" />
                 </div>
               )}
+              
+              <div className="space-y-2">
+                <Label htmlFor="secretCode" className="text-teal-300">Enter the Secret Code</Label>
+                <Input
+                  id="secretCode"
+                  type="text"
+                  placeholder="Enter code"
+                  value={currentAnswer}
+                  onChange={(e) => setCurrentAnswer(e.target.value)}
+                  className="border-teal-500 focus:ring-teal-500 bg-gray-700 text-white"
+                  required
+                />
+              </div>
             </div>
           )}
           {task.type === "social" && (
@@ -461,6 +534,7 @@ export function TreasureHunt() {
       </CardContent>
     </Card>
   );
+
 
   const renderGameComplete = () => (
     <Card className="w-full max-w-md bg-gray-800/80 backdrop-blur-sm">
@@ -486,6 +560,7 @@ export function TreasureHunt() {
             setGameCompleted(false);
             setCurrentAnswer("");
             setSelfieImage(null);
+            setSelfieImageFile(null);
             toast.info("Game has been restarted.");
           }}
           className="mt-4 w-full bg-teal-500 hover:bg-teal-600 text-white"
