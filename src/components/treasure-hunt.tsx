@@ -187,7 +187,7 @@ export function TreasureHunt() {
     }
 
     // Step 2 validation for Salesforce character
-    if (currentStep === 3) {
+    if (currentStep === 2) {
       console.log(selectedCharacter!.name);
       console.log(currentAnswer.toLowerCase());
       const validAnswers = ["hootie", "earnie", "meta", "saasy", "genie", "astro", "brandy", "zig", "koa", "flo", "codey", "einstein", "ruth", "appy", "blaze", "max", "genie", "cloudy"];
@@ -445,7 +445,7 @@ export function TreasureHunt() {
 
 
           {/*2 Salesforce character*/}
-          {currentStep === 3 && (
+          {currentStep === 2 && (
             <Card className="w-full max-w-md bg-gray-800/80 backdrop-blur-sm">
               <CardContent>
                 {selectedCharacter && (
@@ -466,7 +466,7 @@ export function TreasureHunt() {
           }
 
           {/*3 Follow Oreivaton*/}
-          {currentStep === 2 && task.type === "social" && (
+          {currentStep === 3 && task.type === "social" && (
             <div className="space-y-2">
               <div className="flex justify-center">
                 <InstagramEmbed url="https://www.instagram.com/oreivaton/" width={328} />
