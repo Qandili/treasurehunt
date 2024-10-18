@@ -16,6 +16,7 @@ import * as THREE from 'three';
 import logo from '@/assets/logo.png'; // Tell webpack this JS file uses this image
 //import axios from 'axios';
 import  QrReader   from 'react-qr-reader';
+import { Scanner } from "@yudiel/react-qr-scanner";
 
 interface Task {
   id: number;
@@ -413,18 +414,24 @@ export function TreasureHunt() {
               </Button>
 
               {hasCameraPermission && isCameraOpen && !isQRScanned && (
-                <QrReader
-                  scanDelay={300}
-                  onResult={(result: QrCodeResult | null, error: Error | null) => {
-                    if (result?.text) {
-                      handleQRScan(result.text);
+                 <Scanner onScan={(result) =>   {
+                    if (result) {
+                      const firstResult = result[0];
+                      handleQRScan(firstResult.rawValue);
                     }
-                    if (error) {
-                      // console.error("QR Scan Error:", error);
-                    }
-                  }}
-                  style={{ width: '100%' }}
-                />
+                  }}/>
+                // <QrReader
+                //   scanDelay={300}
+                //   onResult={(result: QrCodeResult | null, error: Error | null) => {
+                //     if (result?.text) {
+                //       handleQRScan(result.text);
+                //     }
+                //     if (error) {
+                //       // console.error("QR Scan Error:", error);
+                //     }
+                //   }}
+                //   style={{ width: '100%' }}
+                // />
               )}
               <input
                 type="text"
