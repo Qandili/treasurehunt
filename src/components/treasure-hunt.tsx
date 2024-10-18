@@ -197,9 +197,9 @@ export function TreasureHunt() {
       }
     }
 
-    // Step 5 validation the QR scan code 
+    // Step 5 validation the QR scan code bader and marouan
     if (currentStep === 5) {
-      if (currentAnswer !== "3dX9$Zk!Qp7#tWm2") {
+      if (currentAnswer !== "4dX9$Zk!Qe7#tWm2") {
         console.log("currentAnswer:", currentAnswer)
         toast.error("Please scan the right code.");
         return;
@@ -555,18 +555,41 @@ export function TreasureHunt() {
 
   // Function to handle the QR code scan
   const handleQRScan = (scannedValue) => {
-    if (scannedValue === "3dX9$Zk!Qp7#tWm2" && hasCameraPermission && isCameraOpen && !isQRScanned && !isScanned) {
-      console.log({ isQRScanned, isScanned })
-      setCurrentAnswer(scannedValue); // Update the state with the valid value
-      toast.success("QR code is correct!"); // Show success message
-      setIsQRScanned(true); // Mark as successfully scanned
-      setIsCameraOpen(false); // Close the camera
+    // handle scan step 1
+    if (currentStep === 1) {
+      if (scannedValue === "3dX9$Zk!Qp7#tWm2" && hasCameraPermission && isCameraOpen && !isQRScanned && !isScanned) {
+        console.log({ isQRScanned, isScanned })
+        setCurrentAnswer(scannedValue); // Update the state with the valid value
+        toast.success("QR code is correct!"); // Show success message
+        setIsQRScanned(true); // Mark as successfully scanned
+        setIsCameraOpen(false); // Close the camera
 
-      stopCamera();
-      isScanned = true
-    } else if (scannedValue !== "3dX9$Zk!Qp7#tWm2") {
-      toast.error("Invalid QR code! Please scan again.");
+        stopCamera();
+        isScanned = true
+      }
+      else if (scannedValue !== "3dX9$Zk!Qp7#tWm2") {
+        toast.error("Invalid QR code! Please scan again.");
+      }
     }
+    // handle scan step 5
+    if (currentStep === 5) {
+      if (scannedValue === "4dX9$Zk!Qe7#tWm2" && hasCameraPermission && isCameraOpen && !isQRScanned && !isScanned) {
+        console.log({ isQRScanned, isScanned })
+        setCurrentAnswer(scannedValue); // Update the state with the valid value
+        toast.success("QR code is correct!"); // Show success message
+        setIsQRScanned(true); // Mark as successfully scanned
+        setIsCameraOpen(false); // Close the camera
+
+        stopCamera();
+        isScanned = true
+      }
+      else if (scannedValue !== "4dX9$Zk!Qe7#tWm2") {
+        toast.error("Invalid QR code! Please scan again.");
+      }
+    }
+
+
+
   };
 
 
