@@ -414,24 +414,24 @@ export function TreasureHunt() {
               </Button>
 
               {hasCameraPermission && isCameraOpen && !isQRScanned && (
-                 <Scanner onScan={(result) =>   {
-                    if (result) {
-                      const firstResult = result[0];
-                      handleQRScan(firstResult.rawValue);
+                //  <Scanner onScan={(result) =>   {
+                //     if (result) {
+                //       const firstResult = result[0];
+                //       handleQRScan(firstResult.rawValue);
+                //     }
+                //   }}/>
+                <QrReader
+                  scanDelay={300}
+                  onResult={(result: QrCodeResult | null, error: Error | null) => {
+                    if (result?.text) {
+                      handleQRScan(result.text);
                     }
-                  }}/>
-                // <QrReader
-                //   scanDelay={300}
-                //   onResult={(result: QrCodeResult | null, error: Error | null) => {
-                //     if (result?.text) {
-                //       handleQRScan(result.text);
-                //     }
-                //     if (error) {
-                //       // console.error("QR Scan Error:", error);
-                //     }
-                //   }}
-                //   style={{ width: '100%' }}
-                // />
+                    if (error) {
+                      // console.error("QR Scan Error:", error);
+                    }
+                  }}
+                  style={{ width: '100%' }}
+                />
               )}
               <input
                 type="text"
