@@ -50,7 +50,7 @@ const initialTasks: Task[] = [
   //{ id: 9, title: "NBS creation", description: "When was NBS created (ask someone of the team)", completed: false, type: "text" },
 ];
 
-const API_URL = "https://fathomless-sea-47280-fc55bb4ea773.herokuapp.com/"; // Back-End-Url
+const API_URL = "https://fathomless-sea-47280-fc55bb4ea773.herokuapp.com"; // Back-End-Url
 
 export function TreasureHunt() {
   // Initialize state from cookies or use default values
