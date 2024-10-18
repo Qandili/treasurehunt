@@ -187,7 +187,7 @@ export function TreasureHunt() {
     }
 
     // Step 2 validation for Salesforce character
-    if (currentStep === 2) {
+    if (currentStep === 3) {
       console.log(selectedCharacter!.name);
       console.log(currentAnswer.toLowerCase());
       const validAnswers = ["hootie", "earnie", "meta", "saasy", "genie", "astro", "brandy", "zig", "koa", "flo", "codey", "einstein", "ruth", "appy", "blaze", "max", "genie", "cloudy"];
