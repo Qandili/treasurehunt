@@ -176,7 +176,7 @@ export function TreasureHunt() {
     e.preventDefault();
     // Step 1 validation the QR scan code First
     if (currentStep === 1) {
-      if (currentAnswer !== "FAST") {
+      if (currentAnswer !== "3dX9$Zk!Qp7#tWm2") {
         console.log("currentAnswer:", currentAnswer)
         toast.error("Please scan the right code.");
         return;
@@ -199,7 +199,7 @@ export function TreasureHunt() {
 
     // Step 5 validation the QR scan code 
     if (currentStep === 5) {
-      if (currentAnswer !== "FAST") {
+      if (currentAnswer !== "3dX9$Zk!Qp7#tWm2") {
         console.log("currentAnswer:", currentAnswer)
         toast.error("Please scan the right code.");
         return;
@@ -555,7 +555,7 @@ export function TreasureHunt() {
 
   // Function to handle the QR code scan
   const handleQRScan = (scannedValue) => {
-    if (scannedValue === "FAST" && hasCameraPermission && isCameraOpen && !isQRScanned && !isScanned) {
+    if (scannedValue === "3dX9$Zk!Qp7#tWm2" && hasCameraPermission && isCameraOpen && !isQRScanned && !isScanned) {
       console.log({ isQRScanned, isScanned })
       setCurrentAnswer(scannedValue); // Update the state with the valid value
       toast.success("QR code is correct!"); // Show success message
@@ -564,7 +564,7 @@ export function TreasureHunt() {
 
       stopCamera();
       isScanned = true
-    } else if (scannedValue !== "FAST") {
+    } else if (scannedValue !== "3dX9$Zk!Qp7#tWm2") {
       toast.error("Invalid QR code! Please scan again.");
     }
   };
