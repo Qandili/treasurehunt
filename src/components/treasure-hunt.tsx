@@ -223,7 +223,8 @@ export function TreasureHunt() {
         toast.error("Please scan the right code.");
         return;
       }
-      window.location.reload();
+      setCurrentStep(3);
+      // window.location.reload();
     }
 
     // Step 3 validation for Salesforce character
@@ -594,7 +595,14 @@ export function TreasureHunt() {
                   style={{ width: '100%' }}
                 />
               )}
-              <p className="text-teal-300">Scanned Code: {currentAnswer}</p>
+              {/* <p className="text-teal-300">Scanned Code: {currentAnswer}</p> */}
+              <input
+          type="text"
+          value={currentAnswer}
+          onChange={(e) => setCurrentAnswer(e.target.value)} // Allow manual input
+          placeholder="Enter or scan code"
+          className="border border-gray-300 p-2 rounded mt-4 w-full"
+        />
             </div>
           )}
 
