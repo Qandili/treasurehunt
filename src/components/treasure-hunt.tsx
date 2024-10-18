@@ -492,7 +492,7 @@ export function TreasureHunt() {
               {hasCameraPermission && isCameraOpen && !isQRScanned && (
                 <QrReader
                   scanDelay={300}
-                  onResult={(result, error) => {
+                  onResult={(result: QrCodeResult | null, error: Error | null) => {
                     if (result?.text) {
                       handleQRScan(result.text);
                     }
@@ -564,7 +564,7 @@ export function TreasureHunt() {
   const [isQRScanned, setIsQRScanned] = useState(false);
 
   // Function to handle the QR code scan
-  const handleQRScan = (scannedValue) => {
+  const handleQRScan = (scannedValue: string) => {
     if (scannedValue === "3dX9$Zk!Qp7#tWm2" && hasCameraPermission && isCameraOpen && !isQRScanned && !isScanned) {
       console.log({ isQRScanned, isScanned })
       setCurrentAnswer(scannedValue); // Update the state with the valid value
@@ -587,7 +587,7 @@ export function TreasureHunt() {
 
     if (mediaStreamRef.current) {
       // Stop all tracks in the media stream
-      mediaStreamRef.current.getTracks().forEach((track) => {
+      mediaStreamRef.current.getTracks().forEach((track: MediaStreamTrack) => {
         track.stop();
       });
 
@@ -661,15 +661,16 @@ export function TreasureHunt() {
       toast.success("User created successfully");
       return data;
     } catch (error) {
-      console.error("Caught error:", error);
-      throw new Error(error.message || "An unexpected error occurred");
+      const typedError = error as Error; // Assert error type
+      console.error("Caught error:", typedError);
+      throw new Error(typedError.message || "An unexpected error occurred");
     }
   };
   //const [hasCameraPermission, setHasCameraPermission] = useState(false);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [hasCameraPermission, setHasCameraPermission] = useState(false);
   const [showCameraModal, setShowCameraModal] = useState(false);
-  const mediaStreamRef = useRef(null);
+  const mediaStreamRef = useRef<MediaStream | null>(null);
 
   const requestCameraPermission = async () => {
     try {
