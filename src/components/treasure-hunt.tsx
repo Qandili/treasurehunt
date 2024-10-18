@@ -187,11 +187,11 @@ export function TreasureHunt() {
 
     // Step 2 validation for Salesforce character
     if (currentStep === 2) {
-      console.log(selectedCharacter.name);
+      console.log(selectedCharacter!.name);
       console.log(currentAnswer.toLowerCase());
       const validAnswers = ["hootie", "earnie", "meta", "saasy", "genie", "astro", "brandy", "zig", "koa", "flo", "codey", "einstein", "ruth", "appy", "blaze", "max", "genie", "cloudy"];
       // if (!validAnswers.includes(currentAnswer.toLowerCase())) {
-      if (selectedCharacter.name !== currentAnswer.toLowerCase()) {
+      if (selectedCharacter?.name !== currentAnswer.toLowerCase()) {
         toast.error("Invalid answer. Please try again.");
         return;
       }
@@ -515,7 +515,12 @@ export function TreasureHunt() {
       </CardContent>
     </Card>
   );
-  const [selectedCharacter, setSelectedCharacter] = useState(null);
+  interface SalesforceCharacter {
+    name: string;
+    imageUrl: string;
+    // other properties...
+  }
+  const [selectedCharacter, setSelectedCharacter] = useState<SalesforceCharacter | null>(null);
   const [userInput, setUserInput] = useState("");
   const salesforceCharacters = [
     { name: "astro", imageUrl: "https://images.squarespace-cdn.com/content/v1/5e51ea8f4f456572ed1b06ef/51df277e-0dbb-4711-9ba1-88752fff7e29/loresASTRO_Tshirt_ArmsUpRight_SFS20_sRGB.jpg" },
