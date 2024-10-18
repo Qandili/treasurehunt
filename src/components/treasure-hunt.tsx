@@ -40,11 +40,11 @@ const personKeys = Object.keys(personHobbies);
 
 const initialTasks: Task[] = [
   //{ id: 3, title: "Take a selfie", description: "Take a selfie with X person and the X person verifies the selfie by entering a code", completed: false, type: "image" },
-  { id: 6, title: "Answer question", description: "Answer a question in the stand (and scan the QR Code)", completed: false, type: "scan" },
-  { id: 5, title: "Salesforce character", description: "Who's the Salesforce character (genie, ....)", completed: false, type: "text" },
-  { id: 1, title: "Follow Instagram", description: "Follow Instagram accounts Oreivaton", completed: false, type: "social" },
-  { id: 2, title: "Follow Instagram", description: "Follow Instagram accounts NBS", completed: false, type: "social" },
-  { id: 4, title: "Scan code", description: "Scan code bar only when nad session finishes (Marouan & Badr)", completed: false, type: "scan" },
+  { id: 6, title: "Answer a question", description: "Answer a question in the OreivatonXNBS stand and request a code to pass to the next step", completed: false, type: "scan" },
+  { id: 1, title: "Follow Instagram", description: "Follow Instagram account Oreivaton", completed: false, type: "social" },
+  { id: 5, title: "Salesforce character", description: "Guess the Salesforce character", completed: false, type: "text" },
+  { id: 2, title: "Follow Instagram", description: "Follow Instagram account NBS", completed: false, type: "social" },
+  { id: 4, title: "We are waiting for you !", description: "Join us on Saturday at 17:00 in the Laurier room to discover how Salesforce Loyalty Cloud can elevate your customer experience—featuring insights from experts Bader Toumi and Marouane ZIBOUT.", completed: false, type: "scan" },
   //{ id: 7, title: "Hobby", description: "What is the hobby of XXX (random of 4 persons) person?", completed: false, type: "text" },
   //{ id: 8, title: "Oreivaton creation", description: "When was oreivaton created (ask someone of the team)", completed: false, type: "text" },
   //{ id: 9, title: "NBS creation", description: "When was NBS created (ask someone of the team)", completed: false, type: "text" },
