@@ -3,9 +3,10 @@ import React, { useState, useRef, useEffect } from "react";
 import Cookies from 'js-cookie';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import Modal from "./ui/Modal";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ChevronLeft, ChevronRight, Camera } from "lucide-react";
+import { ChevronLeft, ChevronRight, Camera, Weight } from "lucide-react";
 import { useZxing } from "react-zxing";
 import { InstagramEmbed } from 'react-social-media-embed';
 import { ToastContainer, toast } from 'react-toastify';
@@ -14,7 +15,7 @@ import NET from 'vanta/dist/vanta.net.min';
 import * as THREE from 'three';
 import logo from '@/assets/logo.png'; // Tell webpack this JS file uses this image
 //import axios from 'axios';
-
+import { QrReader } from 'react-qr-reader';
 
 interface Task {
   id: number;
@@ -30,7 +31,8 @@ const personHobbies = {
   "Nizar krimis": "music",
   "Bader Toumi": "design",
   "Mohamed Elqandili": "surf",
-  "Marouan Zibout": "box"
+  "Marouan Zibout": "box",
+  "Yahya Boujrah": "football"
 };
 
 const personKeys = Object.keys(personHobbies);
@@ -53,8 +55,9 @@ export function TreasureHunt() {
   // Initialize state from cookies or use default values
   const [currentStep, setCurrentStep] = useState<number>(() => {
     const savedStep = Cookies.get('currentStep');
-    return savedStep ? parseInt(savedStep, 10) : 0;
+    return savedStep ? parseInt(savedStep, 10) : 2;//change to 0
   });
+  console.log(currentStep);
   const [result, setResult] = useState("");
   const [playerInfo, setPlayerInfo] = useState<{ firstName: string; lastName: string; email: string; experience: string }>(() => {
     const savedInfo = Cookies.get('playerInfo');
@@ -88,7 +91,9 @@ export function TreasureHunt() {
   const [selfieImage, setSelfieImage] = useState<string | null>(null);
   //new var
   const [selfieImageFile, setSelfieImageFile] = useState<File | null>(null);
+  const [qrCode, setQrCode] = useState<string | null>(null);
 
+  const debounceTimeoutRef = useRef(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { ref } = useZxing({
@@ -175,12 +180,12 @@ export function TreasureHunt() {
         toast.error("Please select a selfie image.");
         return;
       }
-    
+
       if (currentAnswer.toLowerCase() !== "apex") {
         toast.error("Incorrect code. Please try again.");
         return;
       }
-    
+
       // Create FormData and append the selfie image and user ID
       const formData = new FormData();
       //formData.append("multipartFile", selfieImage); // Assuming selfieImage is a File object
@@ -194,7 +199,7 @@ export function TreasureHunt() {
       //console.log(selfieImage.type);
 
       formData.append("userId", userId); // Get the user ID from local storage
-    
+
       try {
         const response = await fetch(`${API_URL}/cloudinary/upload`, {
           method: "POST",
@@ -203,7 +208,7 @@ export function TreasureHunt() {
         if (!response.ok) {
           throw new Error("Failed to upload selfie.");
         }
-    
+
         toast.success("Selfie uploaded successfully!");
       } catch (error) {
         console.error("Error uploading selfie:", error);
@@ -212,10 +217,22 @@ export function TreasureHunt() {
       }
     }
 
+    if (currentStep === 2) {
+      if (currentAnswer !== "FAST") {
+        console.log("currentAnswer:", currentAnswer)
+        toast.error("Please scan the right code.");
+        return;
+      }
+      window.location.reload();
+    }
+
     // Step 3 validation for Salesforce character
     if (currentStep === 3) {
+      console.log(selectedCharacter.name);
+      console.log(currentAnswer.toLowerCase());
       const validAnswers = ["hootie", "earnie", "meta", "saasy", "genie", "astro", "brandy", "zig", "koa", "flo", "codey", "einstein", "ruth", "appy", "blaze", "max", "genie", "cloudy"];
-      if (!validAnswers.includes(currentAnswer.toLowerCase())) {
+      // if (!validAnswers.includes(currentAnswer.toLowerCase())) {
+      if (selectedCharacter.name !== currentAnswer.toLowerCase()) {
         toast.error("Invalid answer. Please try again.");
         return;
       }
@@ -306,10 +323,10 @@ export function TreasureHunt() {
       setTotalTime((prev) => prev + timeTaken);
       setStartTime(Date.now()); // Reset start time for the next task
       toast.success(`Task "${currentTask.title}" completed! Time taken: ${timeTaken.toFixed(2)} seconds.`);
+      console.log("HANDLE FORM")
       setCurrentAnswer("");
     }
   };
-
 
   const handleNext = async () => {
     if (currentStep === 9) { // Step 9 
@@ -346,23 +363,9 @@ export function TreasureHunt() {
     }
   };
 
-
-
   const handlePrevious = () => {
     setCurrentStep(prev => Math.max(1, prev - 1));
   };
-
-  // const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   const file = event.target.files?.[0];
-  //   if (file) {
-  //     const reader = new FileReader();
-  //     reader.onloadend = () => {
-  //       setSelfieImage(reader.result as string);
-  //     };
-  //     reader.readAsDataURL(file);
-  //   }
-  // };
-
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -375,7 +378,6 @@ export function TreasureHunt() {
       reader.readAsDataURL(file);
     }
   };
-  
 
   const renderHeader = () => (
     <div className="w-full max-w-4xl mb-6 p-4 bg-gray-800/80 backdrop-blur-sm rounded-lg shadow-md flex justify-between items-center">
@@ -393,7 +395,7 @@ export function TreasureHunt() {
     </div>
   );
 
-
+  //the First Form
   const renderForm = () => (
     <div className="flex items-center justify-center p-4 relative z-10">
       <Card className="w-full max-w-md bg-gray-800/80 backdrop-blur-sm">
@@ -462,7 +464,8 @@ export function TreasureHunt() {
       </Card>
     </div>
   );
-
+  let isScanned = false
+  //Render The Tasks
   const renderTask = (task: Task) => (
     <Card className="w-full max-w-md bg-gray-800/80 backdrop-blur-sm">
       <CardHeader>
@@ -482,7 +485,11 @@ export function TreasureHunt() {
           )}
           {currentStep === 1 && task.type === "image" && (
             <div className="space-y-2">
-              <Button onClick={() => fileInputRef.current?.click()} type="button" className="w-full bg-teal-500 hover:bg-teal-600 text-white">
+              <Button
+                onClick={() => fileInputRef.current?.click()} // Open file input
+                type="button" // This ensures the button does not submit the form
+                className="w-full bg-teal-500 hover:bg-teal-600 text-white"
+              >
                 <Camera className="mr-2 h-4 w-4" /> Take Selfie
               </Button>
               <input
@@ -499,7 +506,7 @@ export function TreasureHunt() {
                   <img src={selfieImage} alt="Selfie" className="max-w-full h-auto rounded-lg" />
                 </div>
               )}
-              
+
               <div className="space-y-2">
                 <Label htmlFor="secretCode" className="text-teal-300">Enter the Secret Code</Label>
                 <Input
@@ -521,12 +528,99 @@ export function TreasureHunt() {
               </div>
             </div>
           )}
-          {task.type === "scan" && (
+
+          {/* {currentStep === 2 && task.type === "scan" && (
             <div className="space-y-2">
-              <video ref={ref} className="w-full" />
+              <Button
+                onClick={() => {
+                  setShowCameraModal(true); // Open the camera permission modal
+                  setIsQRScanned(false); // Reset the QR scan status when reopening the camera
+                }}
+                className="w-full bg-teal-500 hover:bg-teal-600 text-white"
+              >
+                Open Camera
+              </Button>
+
+              {hasCameraPermission && isCameraOpen && !isQRScanned && !isScanned && (
+                <QrReader
+                  scanDelay={300}
+                  onResult={(result, error) => {
+                  
+                    if (result?.text && !isQRScanned) {
+                      // Clear the previous debounce timeout
+                      if (debounceTimeoutRef.current) {
+                        clearTimeout(debounceTimeoutRef.current);
+                      }
+                      // Set a new debounce timeout
+                      debounceTimeoutRef.current = setTimeout(() => {
+                        handleQRScan(result.text); // Handle QR code scanning result
+                      }, 300); // 300ms debounce delay
+                    }
+                    if (error) {
+                      console.error("QR Scan Error:", error);
+                    }
+                  }}
+                  style={{ width: '100%' }}
+                />
+              )}
+              <p className="text-teal-300">Scanned Code: {currentAnswer}</p>
+            </div>
+          )} */}
+
+
+          {currentStep === 2 && task.type === "scan" && (
+            <div className="space-y-2">
+              <Button
+                onClick={() => {
+                  setShowCameraModal(true);
+                  setIsQRScanned(false);
+                }}
+                className="w-full bg-teal-500 hover:bg-teal-600 text-white"
+              >
+                Open Camera
+              </Button>
+
+              {hasCameraPermission && isCameraOpen && !isQRScanned && (
+                <QrReader
+                  scanDelay={300}
+                  onResult={(result, error) => {
+                    if (result?.text) {
+                      handleQRScan(result.text);
+                    }
+                    if (error) {
+                      console.error("QR Scan Error:", error);
+                    }
+                  }}
+                  style={{ width: '100%' }}
+                />
+              )}
               <p className="text-teal-300">Scanned Code: {currentAnswer}</p>
             </div>
           )}
+
+
+          {currentStep === 3 && (
+            <Card className="w-full max-w-md bg-gray-800/80 backdrop-blur-sm">
+              <CardContent>
+                {selectedCharacter && (
+                  <>
+                    <div className="text-center mb-4">
+                      <img
+                        src={selectedCharacter.imageUrl}
+                        alt={selectedCharacter.name}
+                        className="max-w-full h-auto rounded-lg"
+                        style={{ width: "auto ", height: "100%" }}
+                      />
+                    </div>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          )
+          }
+          {/* Call renderCameraModal to show the permission dialog */}
+          {/* {renderCameraModal()} */}
+
           <Button type="submit" className="w-full bg-teal-500 hover:bg-teal-600 text-white">
             Submit Answer
           </Button>
@@ -534,7 +628,80 @@ export function TreasureHunt() {
       </CardContent>
     </Card>
   );
+  const [selectedCharacter, setSelectedCharacter] = useState(null);
+  const [userInput, setUserInput] = useState("");
+  const salesforceCharacters = [
+    { name: "astro", imageUrl: "https://images.squarespace-cdn.com/content/v1/5e51ea8f4f456572ed1b06ef/51df277e-0dbb-4711-9ba1-88752fff7e29/loresASTRO_Tshirt_ArmsUpRight_SFS20_sRGB.jpg" },
+    { name: "codey", imageUrl: "https://www.salesforce.com/blog/wp-content/uploads/sites/2/2021/12/2021-12-360Blog-2D-IndividualIllustrations-Codey.png?strip=all&quality=95" },
+    { name: "cloudy", imageUrl: "https://www.salesforce.com/news/wp-content/uploads/sites/3/2020/08/Cloudy.png?w=243" },
+    { name: "einstein", imageUrl: "https://www.salesforce.com/news/wp-content/uploads/sites/3/2023/03/Newsroom-Press-Release.png" },
+    { name: "genie", imageUrl: "https://gettectonic.com/wp-content/uploads/2024/04/Salesforce-Genie-Announced2.webp" },
+    { name: "hootie", imageUrl: "https://developer.salesforce.com/files/ti/blogs/img/Blog-ContextualDrivers-336x360-Hootie.png" },
+    { name: "meta", imageUrl: "https://cloudanalysts.com/wp-content/uploads/2021/01/Salesforce-characters_Meta_Moose.png" },
+    { name: "ruth", imageUrl: "https://www.salesforce.com/blog/wp-content/uploads/sites/2/2021/12/2021-12-360Blog-2D-IndividualIllustrations-Ruth.png?strip=all&quality=95" },
+    { name: "saasy", imageUrl: "https://i0.wp.com/cloudvandana.com/wp-content/uploads/2022/10/EKy1GbMW4AEMtx5-1024x1024.jpg?resize=1024%2C1024&ssl=1" },
+    { name: "max", imageUrl: "https://www.salesforce.com/de/blog/wp-content/uploads/sites/7/2022/12/mulesoft-rpa-lifecycle-image.png" },
+    { name: "blaze", imageUrl: "https://acsgbl.com/wp-content/uploads/2022/09/Salesforce-Characters-5.png" },
+    { name: "brandy", imageUrl: "https://cloudanalysts.com/wp-content/uploads/2021/01/Salesforce-characters-Brandy-the-fox.png" },
+    { name: "earnie", imageUrl: "https://cloudanalysts.com/wp-content/uploads/2021/01/Salesforce-mascots_ernie-the-badger.png" },
+    { name: "flo", imageUrl: "https://www.salesforce.com/au/blog/wp-content/uploads/sites/4/2023/03/Flo-Blog-Image-03-1500x844-1.png" },
+    { name: "zig", imageUrl: "https://www.salesforce.com/blog/wp-content/uploads/sites/2/2023/05/2023-05-360Blog-ContextualDriver-Zig-567x844-1.png" },
+    { name: "koa", imageUrl: "https://acsgbl.com/wp-content/uploads/2022/09/Salesforce-Characters-2.png" },
+    { name: "appy", imageUrl: "https://www.salesforce.com/news/wp-content/uploads/sites/3/2023/10/Gartner_AppExchange.jpg" }
+  ];
 
+  // Call this function to set the initial character when the component mounts
+  useEffect(() => {
+    if (currentStep === 3) {
+      selectRandomCharacter();
+    }
+  }, [currentStep]);
+
+
+  // Function to randomly select a character
+  const selectRandomCharacter = () => {
+    const randomIndex = Math.floor(Math.random() * salesforceCharacters.length);
+    setSelectedCharacter(salesforceCharacters[randomIndex]);
+  };
+  const [isQRScanned, setIsQRScanned] = useState(false);
+
+  // Function to handle the QR code scan
+  const handleQRScan = (scannedValue) => {
+    if (scannedValue === "FAST" && hasCameraPermission && isCameraOpen && !isQRScanned && !isScanned) {
+      console.log({ isQRScanned, isScanned })
+      setCurrentAnswer(scannedValue); // Update the state with the valid value
+      toast.success("QR code is correct!"); // Show success message
+      setIsQRScanned(true); // Mark as successfully scanned
+      setIsCameraOpen(false); // Close the camera
+
+      stopCamera();
+      isScanned = true
+    } else if (scannedValue !== "FAST") {
+      toast.error("Invalid QR code! Please scan again.");
+    }
+  };
+
+
+  // Stop camera function
+  const stopCamera = () => {
+    console.log("Stopping camera...");
+    console.log("MediaStream Reference Before Stopping:", mediaStreamRef.current);
+
+    if (mediaStreamRef.current) {
+      // Stop all tracks in the media stream
+      mediaStreamRef.current.getTracks().forEach((track) => {
+        track.stop();
+      });
+
+      // Clear the media stream reference
+      mediaStreamRef.current = null;
+      setIsCameraOpen(false); // Close the camera
+
+      console.log("Camera stopped successfully.");
+    } else {
+      console.log("No active camera stream to stop.");
+    }
+  };
 
   const renderGameComplete = () => (
     <Card className="w-full max-w-md bg-gray-800/80 backdrop-blur-sm">
@@ -600,7 +767,61 @@ export function TreasureHunt() {
       throw new Error(error.message || "An unexpected error occurred");
     }
   };
+  //const [hasCameraPermission, setHasCameraPermission] = useState(false);
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [hasCameraPermission, setHasCameraPermission] = useState(false);
+  const [showCameraModal, setShowCameraModal] = useState(false);
+  const mediaStreamRef = useRef(null);
+  // Function to request camera permission
+  // const requestCameraPermission = async () => {
+  //   try {
+  //     const stream = await navigator.mediaDevices.getUserMedia({ video: {
+  //       facingMode: 'environment' // Use 'user' for the front camera or 'environment' for the back camera
+  //     } });
+  //     console.log("Stream obtained:", stream);
+  //     mediaStreamRef.current = stream; // Assign the stream to the reference
+  //     setHasCameraPermission(true);
+  //     setIsCameraOpen(true);
+  //     setShowCameraModal(false); // Close the modal after permission granted
+  //   } catch (error) {
+  //     console.error("Camera permission denied:", error);
+  //     toast.error("Camera access is required to scan the QR code.");
+  //   }
+  // };
 
+  const requestCameraPermission = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: 'environment' // Use back camera
+        }
+      });
+      mediaStreamRef.current = stream;
+      setHasCameraPermission(true);
+      setIsCameraOpen(true);
+      setShowCameraModal(false);
+      toast.success("Camera access granted!");
+    } catch (error) {
+      console.error("Camera permission denied:", error);
+      toast.error("Camera access is required to scan the QR code.");
+      //setShowCameraModal(false);
+    }
+  };
+
+  // Render the camera modal
+  const renderCameraModal = () => (
+    <Modal isOpen={showCameraModal}
+      onClose={() => setShowCameraModal(false)}>
+      <h2 style={{ color: '#000000', fontSize: '24px', fontWeight: '600', marginBottom: '2px' }} className="text-teal-400">Camera Permission</h2>
+      <p style={{ color: '#000000', fontWeight: '600', marginBottom: '16px' }} className="text-teal-300">To scan the QR code, we need access to your camera. Please allow camera access.</p>
+      <Button onClick={requestCameraPermission} className="bg-teal-500 hover:bg-teal-600 text-white">
+        Allow Camera Access
+      </Button>
+      <Button onClick={() => setShowCameraModal(false)} className="mt-2 text-teal-500">
+        Cancel
+      </Button>
+    </Modal>
+  );
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
@@ -628,6 +849,31 @@ export function TreasureHunt() {
         )}
         {gameCompleted && renderGameComplete()}
       </div>
+      <Modal 
+      isOpen={showCameraModal} 
+      onClose={() => setShowCameraModal(false)}
+    >
+      <h2 className="text-xl font-semibold text-gray-900 mb-4">
+        Camera Permission Required
+      </h2>
+      <p className="text-gray-600 mb-6">
+        To scan the QR code, we need access to your camera. Please allow camera access.
+      </p>
+      <div className="flex flex-col gap-2">
+        <Button
+          onClick={requestCameraPermission}
+          className="w-full bg-teal-500 hover:bg-teal-600 text-white"
+        >
+          Allow Camera Access
+        </Button>
+        <Button
+          onClick={() => setShowCameraModal(false)}
+          className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800"
+        >
+          Cancel
+        </Button>
+      </div>
+    </Modal>
 
       {/* Toast Notifications */}
       <ToastContainer
