@@ -215,10 +215,12 @@ export function TreasureHunt() {
         setStartTime(Date.now()); // Record start time
         toast.success("Player information saved! Starting the game.");
       } catch (error) {
-        if (error.message === "User with this email already exists") {
-          toast.error("Please try again with a different email.");
-        } else {
-          toast.error("An error occurred. Please try again.");
+        if (error instanceof Error) {
+          if (error.message === "User with this email already exists") {
+            toast.error("Please try again with a different email.");
+          } else {
+            toast.error("An error occurred. Please try again.");
+          }
         }
       }
     } else {
