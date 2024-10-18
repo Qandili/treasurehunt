@@ -38,15 +38,15 @@ const personHobbies = {
 const personKeys = Object.keys(personHobbies);
 
 const initialTasks: Task[] = [
-  { id: 3, title: "Take a selfie", description: "Take a selfie with X person and the X person verifies the selfie by entering a code", completed: false, type: "image" },
-  { id: 4, title: "Scan code", description: "Scan code bar only when nad session finishes (chakib and marouanXbadr)", completed: false, type: "scan" },
+  //{ id: 3, title: "Take a selfie", description: "Take a selfie with X person and the X person verifies the selfie by entering a code", completed: false, type: "image" },
+  { id: 6, title: "Answer question", description: "Answer a question in the stand (and scan the QR Code)", completed: false, type: "scan" },
   { id: 5, title: "Salesforce character", description: "Who's the Salesforce character (genie, ....)", completed: false, type: "text" },
-  { id: 1, title: "Follow LinkedIn", description: "Follow LinkedIn accounts", completed: false, type: "social" },
-  { id: 2, title: "Follow Instagram", description: "Follow Instagram accounts", completed: false, type: "social" },
-  { id: 6, title: "Answer question", description: "Answer a question in the stand (the one in the stand validates with a code)", completed: false, type: "text" },
-  { id: 7, title: "Hobby", description: "What is the hobby of XXX (random of 4 persons) person?", completed: false, type: "text" },
-  { id: 8, title: "Oreivaton creation", description: "When was oreivaton created (ask someone of the team)", completed: false, type: "text" },
-  { id: 9, title: "NBS creation", description: "When was NBS created (ask someone of the team)", completed: false, type: "text" },
+  { id: 1, title: "Follow Instagram", description: "Follow Instagram accounts Oreivaton", completed: false, type: "social" },
+  { id: 2, title: "Follow Instagram", description: "Follow Instagram accounts NBS", completed: false, type: "social" },
+  { id: 4, title: "Scan code", description: "Scan code bar only when nad session finishes (Marouan & Badr)", completed: false, type: "scan" },
+  //{ id: 7, title: "Hobby", description: "What is the hobby of XXX (random of 4 persons) person?", completed: false, type: "text" },
+  //{ id: 8, title: "Oreivaton creation", description: "When was oreivaton created (ask someone of the team)", completed: false, type: "text" },
+  //{ id: 9, title: "NBS creation", description: "When was NBS created (ask someone of the team)", completed: false, type: "text" },
 ];
 
 const API_URL = "http://localhost:8087"; // Back-End-Url
@@ -174,61 +174,19 @@ export function TreasureHunt() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Step 1 validation for selfie
+    // Step 1 validation the QR scan code First
     if (currentStep === 1) {
-      if (!selfieImage) {
-        toast.error("Please select a selfie image.");
-        return;
-      }
-
-      if (currentAnswer.toLowerCase() !== "apex") {
-        toast.error("Incorrect code. Please try again.");
-        return;
-      }
-
-      // Create FormData and append the selfie image and user ID
-      const formData = new FormData();
-      //formData.append("multipartFile", selfieImage); // Assuming selfieImage is a File object
-      formData.append("multipartFile", selfieImageFile);
-      const userId = localStorage.getItem('userId');
-      if (!userId) {
-        toast.error("User ID is missing.");
-        return;
-      }
-      console.log(selfieImage);
-      //console.log(selfieImage.type);
-
-      formData.append("userId", userId); // Get the user ID from local storage
-
-      try {
-        const response = await fetch(`${API_URL}/cloudinary/upload`, {
-          method: "POST",
-          body: formData,
-        });
-        if (!response.ok) {
-          throw new Error("Failed to upload selfie.");
-        }
-
-        toast.success("Selfie uploaded successfully!");
-      } catch (error) {
-        console.error("Error uploading selfie:", error);
-        toast.error("Failed to upload the selfie. Please try again.");
-        return;
-      }
-    }
-
-    if (currentStep === 2) {
       if (currentAnswer !== "FAST") {
         console.log("currentAnswer:", currentAnswer)
         toast.error("Please scan the right code.");
         return;
       }
       window.location.reload();
-      setCurrentStep(3);
+      setCurrentStep(currentStep + 1);
     }
 
-    // Step 3 validation for Salesforce character
-    if (currentStep === 3) {
+    // Step 2 validation for Salesforce character
+    if (currentStep === 2) {
       console.log(selectedCharacter.name);
       console.log(currentAnswer.toLowerCase());
       const validAnswers = ["hootie", "earnie", "meta", "saasy", "genie", "astro", "brandy", "zig", "koa", "flo", "codey", "einstein", "ruth", "appy", "blaze", "max", "genie", "cloudy"];
@@ -239,61 +197,15 @@ export function TreasureHunt() {
       }
     }
 
-    if (currentStep === 6) { // Step 6
-      const endGameDate = new Date().toISOString(); // Get the current date and time in ISO format
-      try {
-        const response = await fetch(`${API_URL}/standcode/mark-used/${currentAnswer}`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(endGameDate), // Send the end game date as JSON
-        });
-
-        if (!response.ok) {
-          //throw new Error('Failed to update end game date');
-          if (response.status === 409) {
-            toast.error("This code is already used! Ask for a new code.");
-            return;
-          }
-        }
-
-        const data = await response.json();
-        console.log(data); // Handle the response as needed
-      } catch (error) {
-        console.error('Error:', error);
-      }
-    }
-
-
-    if (currentStep === 7) {
-      // Validate the hobby for the selected person
-      if (currentAnswer.toLowerCase() === personHobbies[selectedPerson]) {
-        toast.success("Correct! Moving to the next step.");
-        //setCurrentStep((prev) => prev + 1);
-        //setCurrentAnswer("");
-      } else {
-        toast.error("Incorrect hobby. Please try again.");
+    // Step 5 validation the QR scan code 
+    if (currentStep === 5) {
+      if (currentAnswer !== "FAST") {
+        console.log("currentAnswer:", currentAnswer)
+        toast.error("Please scan the right code.");
         return;
       }
-    }
-
-    // Step 8 validation 
-    if (currentStep === 8) {
-      const validAnswers = ["2021"];
-      if (!validAnswers.includes(currentAnswer.toLowerCase())) {
-        toast.error("Invalid answer. Please try again.");
-        return;
-      }
-    }
-
-    // Step 9 validation 
-    if (currentStep === 9) {
-      const validAnswers = ["2019"];
-      if (!validAnswers.includes(currentAnswer.toLowerCase())) {
-        toast.error("Invalid answer. Please try again.");
-        return;
-      }
+      window.location.reload();
+      // setCurrentStep(6);
     }
 
     if (currentStep === 0) {
@@ -326,7 +238,8 @@ export function TreasureHunt() {
 
 
   const handleNext = async () => {
-    if (currentStep === 9) { // Step 9 
+    // 5 Last Step to Update the END DATE
+    if (currentStep === 5) {
       const userId = localStorage.getItem('userId'); // Replace with the actual key used to store user ID
       const endGameDate = new Date().toISOString(); // Get the current date and time in ISO format
 
@@ -480,92 +393,9 @@ export function TreasureHunt() {
               required
             />
           )}
-          {currentStep === 1 && task.type === "image" && (
-            <div className="space-y-2">
-              <Button
-                onClick={() => fileInputRef.current?.click()} // Open file input
-                type="button" // This ensures the button does not submit the form
-                className="w-full bg-teal-500 hover:bg-teal-600 text-white"
-              >
-                <Camera className="mr-2 h-4 w-4" /> Take Selfie
-              </Button>
-              <input
-                type="file"
-                accept="image/*"
-                capture="user"
-                onChange={handleFileChange}
-                ref={fileInputRef}
-                className="hidden"
-              />
 
-              {selfieImage && (
-                <div className="mt-2">
-                  <img src={selfieImage} alt="Selfie" className="max-w-full h-auto rounded-lg" />
-                </div>
-              )}
-
-              <div className="space-y-2">
-                <Label htmlFor="secretCode" className="text-teal-300">Enter the Secret Code</Label>
-                <Input
-                  id="secretCode"
-                  type="text"
-                  placeholder="Enter code"
-                  value={currentAnswer}
-                  onChange={(e) => setCurrentAnswer(e.target.value)}
-                  className="border-teal-500 focus:ring-teal-500 bg-gray-700 text-white"
-                  required
-                />
-              </div>
-            </div>
-          )}
-          {task.type === "social" && (
-            <div className="space-y-2">
-              <div className="flex justify-center">
-                <InstagramEmbed url="https://www.instagram.com/oreivaton/" width={328} />
-              </div>
-            </div>
-          )}
-
-          {/* {currentStep === 2 && task.type === "scan" && (
-            <div className="space-y-2">
-              <Button
-                onClick={() => {
-                  setShowCameraModal(true); // Open the camera permission modal
-                  setIsQRScanned(false); // Reset the QR scan status when reopening the camera
-                }}
-                className="w-full bg-teal-500 hover:bg-teal-600 text-white"
-              >
-                Open Camera
-              </Button>
-
-              {hasCameraPermission && isCameraOpen && !isQRScanned && !isScanned && (
-                <QrReader
-                  scanDelay={300}
-                  onResult={(result, error) => {
-                  
-                    if (result?.text && !isQRScanned) {
-                      // Clear the previous debounce timeout
-                      if (debounceTimeoutRef.current) {
-                        clearTimeout(debounceTimeoutRef.current);
-                      }
-                      // Set a new debounce timeout
-                      debounceTimeoutRef.current = setTimeout(() => {
-                        handleQRScan(result.text); // Handle QR code scanning result
-                      }, 300); // 300ms debounce delay
-                    }
-                    if (error) {
-                      console.error("QR Scan Error:", error);
-                    }
-                  }}
-                  style={{ width: '100%' }}
-                />
-              )}
-              <p className="text-teal-300">Scanned Code: {currentAnswer}</p>
-            </div>
-          )} */}
-
-
-          {currentStep === 2 && task.type === "scan" && (
+          {/*1 SCAN QR Stand*/}
+          {currentStep === 1 && task.type === "scan" && (
             <div className="space-y-2">
               <Button
                 onClick={() => {
@@ -591,7 +421,6 @@ export function TreasureHunt() {
                   style={{ width: '100%' }}
                 />
               )}
-              {/* <p className="text-teal-300">Scanned Code: {currentAnswer}</p> */}
               <input
                 type="text"
                 value={currentAnswer}
@@ -603,7 +432,8 @@ export function TreasureHunt() {
           )}
 
 
-          {currentStep === 3 && (
+          {/*2 Salesforce character*/}
+          {currentStep === 2 && (
             <Card className="w-full max-w-md bg-gray-800/80 backdrop-blur-sm">
               <CardContent>
                 {selectedCharacter && (
@@ -622,8 +452,61 @@ export function TreasureHunt() {
             </Card>
           )
           }
-          {/* Call renderCameraModal to show the permission dialog */}
-          {/* {renderCameraModal()} */}
+
+          {/*3 Follow Oreivaton*/}
+          {currentStep === 3 && task.type === "social" && (
+            <div className="space-y-2">
+              <div className="flex justify-center">
+                <InstagramEmbed url="https://www.instagram.com/oreivaton/" width={328} />
+              </div>
+            </div>
+          )}
+
+          {/*4 Follow NBS*/}
+          {currentStep === 4 && task.type === "social" && (
+            <div className="space-y-2">
+              <div className="flex justify-center">
+                <InstagramEmbed url="https://www.instagram.com/nbsconsultingsalesforcepartner/" width={328} />
+              </div>
+            </div>
+          )}
+
+          {/*5 SCAN QR Marouan & Bader*/}
+          {currentStep === 5 && task.type === "scan" && (
+            <div className="space-y-2">
+              <Button
+                onClick={() => {
+                  setShowCameraModal(true);
+                  setIsQRScanned(false);
+                }}
+                className="w-full bg-teal-500 hover:bg-teal-600 text-white"
+              >
+                Open Camera
+              </Button>
+
+              {hasCameraPermission && isCameraOpen && !isQRScanned && (
+                <QrReader
+                  scanDelay={300}
+                  onResult={(result, error) => {
+                    if (result?.text) {
+                      handleQRScan(result.text);
+                    }
+                    if (error) {
+                      console.error("QR Scan Error:", error);
+                    }
+                  }}
+                  style={{ width: '100%' }}
+                />
+              )}
+              <input
+                type="text"
+                value={currentAnswer}
+                onChange={(e) => setCurrentAnswer(e.target.value)} // Allow manual input
+                placeholder="Enter or scan code"
+                className="border border-gray-300 p-2 rounded mt-4 w-full"
+              />
+            </div>
+          )}
 
           <Button type="submit" className="w-full bg-teal-500 hover:bg-teal-600 text-white">
             Submit Answer
@@ -656,7 +539,8 @@ export function TreasureHunt() {
 
   // Call this function to set the initial character when the component mounts
   useEffect(() => {
-    if (currentStep === 3) {
+    /* 3 ===> 2 */
+    if (currentStep === 2) {
       selectRandomCharacter();
     }
   }, [currentStep]);
@@ -776,22 +660,6 @@ export function TreasureHunt() {
   const [hasCameraPermission, setHasCameraPermission] = useState(false);
   const [showCameraModal, setShowCameraModal] = useState(false);
   const mediaStreamRef = useRef(null);
-  // Function to request camera permission
-  // const requestCameraPermission = async () => {
-  //   try {
-  //     const stream = await navigator.mediaDevices.getUserMedia({ video: {
-  //       facingMode: 'environment' // Use 'user' for the front camera or 'environment' for the back camera
-  //     } });
-  //     console.log("Stream obtained:", stream);
-  //     mediaStreamRef.current = stream; // Assign the stream to the reference
-  //     setHasCameraPermission(true);
-  //     setIsCameraOpen(true);
-  //     setShowCameraModal(false); // Close the modal after permission granted
-  //   } catch (error) {
-  //     console.error("Camera permission denied:", error);
-  //     toast.error("Camera access is required to scan the QR code.");
-  //   }
-  // };
 
   const requestCameraPermission = async () => {
     try {
