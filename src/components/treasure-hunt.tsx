@@ -38,15 +38,15 @@ const personHobbies = {
 const personKeys = Object.keys(personHobbies);
 
 const initialTasks: Task[] = [
-  { id: 3, title: "Take a selfie", description: "Take a selfie with X person and the X person verifies the selfie by entering a code", score: 15, completed: false, type: "image" },
-  { id: 4, title: "Scan code", description: "Scan code bar only when nad session finishes (chakib and marouanXbadr)", score: 10, completed: false, type: "scan" },
-  { id: 5, title: "Salesforce character", description: "Who's the Salesforce character (genie, ....)", score: 10, completed: false, type: "text" },
-  { id: 1, title: "Follow LinkedIn", description: "Follow LinkedIn accounts", score: 10, completed: false, type: "social" },
-  { id: 2, title: "Follow Instagram", description: "Follow Instagram accounts", score: 10, completed: false, type: "social" },
-  { id: 6, title: "Answer question", description: "Answer a question in the stand (the one in the stand validates with a code)", score: 15, completed: false, type: "text" },
-  { id: 7, title: "Hobby", description: "What is the hobby of XXX (random of 4 persons) person?", score: 10, completed: false, type: "text" },
-  { id: 8, title: "Oreivaton creation", description: "When was oreivaton created (ask someone of the team)", score: 10, completed: false, type: "text" },
-  { id: 9, title: "NBS creation", description: "When was NBS created (ask someone of the team)", score: 5, completed: false, type: "text" },
+  { id: 3, title: "Take a selfie", description: "Take a selfie with X person and the X person verifies the selfie by entering a code", completed: false, type: "image" },
+  { id: 4, title: "Scan code", description: "Scan code bar only when nad session finishes (chakib and marouanXbadr)", completed: false, type: "scan" },
+  { id: 5, title: "Salesforce character", description: "Who's the Salesforce character (genie, ....)", completed: false, type: "text" },
+  { id: 1, title: "Follow LinkedIn", description: "Follow LinkedIn accounts", completed: false, type: "social" },
+  { id: 2, title: "Follow Instagram", description: "Follow Instagram accounts", completed: false, type: "social" },
+  { id: 6, title: "Answer question", description: "Answer a question in the stand (the one in the stand validates with a code)", completed: false, type: "text" },
+  { id: 7, title: "Hobby", description: "What is the hobby of XXX (random of 4 persons) person?", completed: false, type: "text" },
+  { id: 8, title: "Oreivaton creation", description: "When was oreivaton created (ask someone of the team)", completed: false, type: "text" },
+  { id: 9, title: "NBS creation", description: "When was NBS created (ask someone of the team)", completed: false, type: "text" },
 ];
 
 const API_URL = "http://localhost:8087"; // Back-End-Url
@@ -55,7 +55,7 @@ export function TreasureHunt() {
   // Initialize state from cookies or use default values
   const [currentStep, setCurrentStep] = useState<number>(() => {
     const savedStep = Cookies.get('currentStep');
-    return savedStep ? parseInt(savedStep, 10) : 2;//change to 0
+    return savedStep ? parseInt(savedStep, 10) : 0;//change to 0
   });
   console.log(currentStep);
   const [result, setResult] = useState("");
@@ -223,8 +223,8 @@ export function TreasureHunt() {
         toast.error("Please scan the right code.");
         return;
       }
+      window.location.reload();
       setCurrentStep(3);
-      // window.location.reload();
     }
 
     // Step 3 validation for Salesforce character
@@ -255,18 +255,13 @@ export function TreasureHunt() {
           if (response.status === 409) {
             toast.error("This code is already used! Ask for a new code.");
             return;
-            //throw new Error("This code is already used!");
           }
-          // Attempt to parse the error response as JSON
-          //const errorData = await response.json();
-          //throw new Error(errorData.message || "Failed !!!");
         }
 
         const data = await response.json();
         console.log(data); // Handle the response as needed
       } catch (error) {
         console.error('Error:', error);
-        // Optionally show an error message to the user
       }
     }
 
@@ -328,6 +323,7 @@ export function TreasureHunt() {
       setCurrentAnswer("");
     }
   };
+
 
   const handleNext = async () => {
     if (currentStep === 9) { // Step 9 
@@ -597,12 +593,12 @@ export function TreasureHunt() {
               )}
               {/* <p className="text-teal-300">Scanned Code: {currentAnswer}</p> */}
               <input
-          type="text"
-          value={currentAnswer}
-          onChange={(e) => setCurrentAnswer(e.target.value)} // Allow manual input
-          placeholder="Enter or scan code"
-          className="border border-gray-300 p-2 rounded mt-4 w-full"
-        />
+                type="text"
+                value={currentAnswer}
+                onChange={(e) => setCurrentAnswer(e.target.value)} // Allow manual input
+                placeholder="Enter or scan code"
+                className="border border-gray-300 p-2 rounded mt-4 w-full"
+              />
             </div>
           )}
 
@@ -857,31 +853,31 @@ export function TreasureHunt() {
         )}
         {gameCompleted && renderGameComplete()}
       </div>
-      <Modal 
-      isOpen={showCameraModal} 
-      onClose={() => setShowCameraModal(false)}
-    >
-      <h2 className="text-xl font-semibold text-gray-900 mb-4">
-        Camera Permission Required
-      </h2>
-      <p className="text-gray-600 mb-6">
-        To scan the QR code, we need access to your camera. Please allow camera access.
-      </p>
-      <div className="flex flex-col gap-2">
-        <Button
-          onClick={requestCameraPermission}
-          className="w-full bg-teal-500 hover:bg-teal-600 text-white"
-        >
-          Allow Camera Access
-        </Button>
-        <Button
-          onClick={() => setShowCameraModal(false)}
-          className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800"
-        >
-          Cancel
-        </Button>
-      </div>
-    </Modal>
+      <Modal
+        isOpen={showCameraModal}
+        onClose={() => setShowCameraModal(false)}
+      >
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">
+          Camera Permission Required
+        </h2>
+        <p className="text-gray-600 mb-6">
+          To scan the QR code, we need access to your camera. Please allow camera access.
+        </p>
+        <div className="flex flex-col gap-2">
+          <Button
+            onClick={requestCameraPermission}
+            className="w-full bg-teal-500 hover:bg-teal-600 text-white"
+          >
+            Allow Camera Access
+          </Button>
+          <Button
+            onClick={() => setShowCameraModal(false)}
+            className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800"
+          >
+            Cancel
+          </Button>
+        </div>
+      </Modal>
 
       {/* Toast Notifications */}
       <ToastContainer
