@@ -237,7 +237,10 @@ export function TreasureHunt() {
       setCurrentAnswer("");
     }
   };
-
+  interface QrCodeResult {
+    text: string;
+  }
+  
 
   const handleNext = async () => {
     // 5 Last Step to Update the END DATE
@@ -412,7 +415,7 @@ export function TreasureHunt() {
               {hasCameraPermission && isCameraOpen && !isQRScanned && (
                 <QrReader
                   scanDelay={300}
-                  onResult={(result, error) => {
+                  onResult={(result: QrCodeResult | null, error: Error | null) => {
                     if (result?.text) {
                       handleQRScan(result.text);
                     }
