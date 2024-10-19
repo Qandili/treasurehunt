@@ -44,7 +44,7 @@ const initialTasks: Task[] = [
   { id: 5, title: "Salesforce character", description: "Guess the Salesforce character", completed: false, type: "text" },
   { id: 1, title: "Keep in touch !", description: "Follow Instagram account Oreivaton", completed: false, type: "social" },
   { id: 2, title: "Stay close !", description: "Follow Instagram account NBS", completed: false, type: "social" },
-  { id: 4, title: "We are waiting for you !", description: "Join us on Saturday at 17:00 in the Laurier room to discover how Salesforce Loyalty Cloud can elevate your customer experience—featuring insights from experts Bader Toumi and Marouane ZIBOUT.", completed: false, type: "scan" },
+  { id: 4, title: "We are waiting for you !", description: "Join us at 14:00 in the Muscade room to Unleash the Future with Agentforce: The AI That Transforms Customer Interaction with our experts Hamza daiz & Aymane darji.", completed: false, type: "scan" },
   //{ id: 7, title: "Hobby", description: "What is the hobby of XXX (random of 4 persons) person?", completed: false, type: "text" },
   //{ id: 8, title: "Oreivaton creation", description: "When was oreivaton created (ask someone of the team)", completed: false, type: "text" },
   //{ id: 9, title: "NBS creation", description: "When was NBS created (ask someone of the team)", completed: false, type: "text" },
