@@ -236,7 +236,9 @@ export function TreasureHunt() {
       toast.success(`Task "${currentTask.title}" completed! Time taken: ${timeTaken.toFixed(2)} seconds.`);
       console.log("HANDLE FORM")
       setCurrentAnswer("");
-      handleNext();
+      if(currentStep != 2){
+        handleNext();
+      }
     }
   };
   interface QrCodeResult {
