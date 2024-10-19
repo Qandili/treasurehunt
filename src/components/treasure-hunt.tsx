@@ -205,7 +205,7 @@ export function TreasureHunt() {
         toast.error("Please scan the right code.");
         return;
       }
-      window.location.reload();
+      //window.location.reload();
       // setCurrentStep(6);
     }
 
@@ -240,6 +240,9 @@ export function TreasureHunt() {
       if(currentStep !== 1){
         handleNext();
       }
+      if(currentStep === 5){
+      window.location.reload();
+    }
     }
   };
   interface QrCodeResult {
