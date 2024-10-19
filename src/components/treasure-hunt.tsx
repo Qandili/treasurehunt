@@ -182,7 +182,7 @@ export function TreasureHunt() {
         toast.error("Please scan the right code.");
         return;
       }
-      window.location.reload();
+      //window.location.reload();
       setCurrentStep(currentStep + 1);
     }
 
@@ -225,6 +225,7 @@ export function TreasureHunt() {
         }
       }
     } else {
+      console.log(currentStep);
       const currentTask = tasks[currentStep - 1];
       const timeTaken = startTime ? (Date.now() - startTime) / 1000 : 0;
       const updatedTasks = tasks.map((task, index) =>
@@ -236,7 +237,7 @@ export function TreasureHunt() {
       toast.success(`Task "${currentTask.title}" completed! Time taken: ${timeTaken.toFixed(2)} seconds.`);
       console.log("HANDLE FORM")
       setCurrentAnswer("");
-      if(currentStep != 2){
+      if(currentStep !== 1){
         handleNext();
       }
     }
