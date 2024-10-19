@@ -493,7 +493,7 @@ export function TreasureHunt() {
           {/*5 SCAN QR Marouan & Bader*/}
           {currentStep === 5 && task.type === "scan" && (
             <div className="space-y-2">
-              <Button
+              {/* <Button
                 onClick={() => {
                   setShowCameraModal(true);
                   setIsQRScanned(false);
@@ -501,7 +501,7 @@ export function TreasureHunt() {
                 className="w-full bg-teal-500 hover:bg-teal-600 text-white"
               >
                 Open Camera
-              </Button>
+              </Button> */}
 
               {hasCameraPermission && isCameraOpen && !isQRScanned && (
                 <QrReader
