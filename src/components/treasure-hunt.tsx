@@ -200,7 +200,7 @@ export function TreasureHunt() {
 
     // Step 5 validation the QR scan code 
     if (currentStep === 5) {
-      if (currentAnswer !== "3dX9$Zk!Qp7#tWm2") {
+      if (currentAnswer !== "4dX9$Zk!Qe7#tWm2") {
         console.log("currentAnswer:", currentAnswer)
         toast.error("Please scan the right code.");
         return;
@@ -403,7 +403,7 @@ export function TreasureHunt() {
           {/*1 SCAN QR Stand*/}
           {currentStep === 1 && task.type === "scan" && (
             <div className="space-y-2">
-              <Button
+              {/* <Button
                 onClick={() => {
                   setShowCameraModal(true);
                   setIsQRScanned(false);
@@ -432,7 +432,7 @@ export function TreasureHunt() {
                   }}
                   style={{ width: '100%' }}
                 />
-              )}
+              )} */}
               <input
                 type="text"
                 value={currentAnswer}
